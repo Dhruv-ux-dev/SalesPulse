@@ -1,0 +1,86 @@
+.dashboard-shell {
+    position: relative;
+    padding: 0.85rem 1rem 1rem;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    display: flex;
+    min-height: 112px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 1rem;
+    border: 1px solid #d8dde6;
+    border-radius: 0.65rem;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgb(24 24 24 / 5%);
+}
+
+.metric-card.won {
+    border-top: 3px solid #2e844a;
+}
+
+.metric-label {
+    color: #5c6470;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    color: #181818;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    line-height: 1.15;
+}
+
+.metric-hint {
+    color: #707780;
+    font-size: 0.75rem;
+}
+
+.table-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.5rem 0 0.75rem;
+}
+
+.table-heading h2 {
+    margin: 0;
+    color: #181818;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.table-heading p {
+    margin: 0.25rem 0 0;
+    color: #707780;
+    font-size: 0.78rem;
+}
+
+.error-message {
+    margin: 0.5rem 0 1rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid #ba0517;
+    border-radius: 0.35rem;
+    color: #8e030f;
+    background: #fef1ee;
+}
+
+@media (max-width: 900px) {
+    .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+    .metric-grid { grid-template-columns: 1fr; }
+    .dashboard-shell { padding-inline: 0.5rem; }
+}

@@ -1,0 +1,50 @@
+<template>
+    <lightning-card title="SalesPulse Pipeline" icon-name="standard:opportunity">
+        <div class="dashboard-shell">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading pipeline" size="medium"></lightning-spinner>
+            </template>
+            <template if:true={errorMessage}>
+                <div class="error-message" role="alert">{errorMessage}</div>
+            </template>
+            <template if:true={data}>
+                <div class="metric-grid">
+                    <article class="metric-card">
+                        <span class="metric-label">Open Pipeline</span>
+                        <strong class="metric-value">{formattedOpenPipeline}</strong>
+                        <span class="metric-hint">Value of open opportunities</span>
+                    </article>
+                    <article class="metric-card won">
+                        <span class="metric-label">Closed-Won Revenue</span>
+                        <strong class="metric-value">{formattedClosedWon}</strong>
+                        <span class="metric-hint">All-time closed-won amount</span>
+                    </article>
+                    <article class="metric-card">
+                        <span class="metric-label">Open Opportunities</span>
+                        <strong class="metric-value">{data.openOpportunityCount}</strong>
+                        <span class="metric-hint">Currently active deals</span>
+                    </article>
+                    <article class="metric-card">
+                        <span class="metric-label">Win Rate</span>
+                        <strong class="metric-value">{formattedWinRate}</strong>
+                        <span class="metric-hint">Won ÷ all closed opportunities</span>
+                    </article>
+                </div>
+                <div class="table-heading">
+                    <div>
+                        <h2>Recently Updated Opportunities</h2>
+                        <p>Latest 25 records visible to you</p>
+                    </div>
+                    <lightning-button-icon icon-name="utility:refresh" alternative-text="Refresh dashboard" title="Refresh" onclick={handleRefresh}></lightning-button-icon>
+                </div>
+                <lightning-datatable
+                    key-field="Id"
+                    data={opportunityRows}
+                    columns={columns}
+                    hide-checkbox-column
+                    show-row-number-column>
+                </lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+</template>
