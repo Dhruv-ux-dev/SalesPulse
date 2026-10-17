@@ -13,14 +13,17 @@ public with sharing class SalesPulseDashboardController {
         AggregateResult[] openAgg = [
             SELECT SUM(Amount) totalAmount, COUNT(Id) recordCount
             FROM Opportunity WHERE IsClosed = false
+            WITH USER_MODE
         ];
         AggregateResult[] wonAgg = [
             SELECT SUM(Amount) totalAmount, COUNT(Id) recordCount
             FROM Opportunity WHERE IsWon = true
+            WITH USER_MODE
         ];
         AggregateResult[] closedAgg = [
             SELECT COUNT(Id) recordCount
             FROM Opportunity WHERE IsClosed = true
+            WITH USER_MODE
         ];
 
         result.openPipelineAmount = (Decimal)openAgg[0].get('totalAmount');
@@ -33,6 +36,7 @@ public with sharing class SalesPulseDashboardController {
             SELECT Id, Name, Account.Name, StageName, Amount, CloseDate, Owner.Name,
                    Health_Status__c, Next_Action_Date__c
             FROM Opportunity
+            WITH USER_MODE
             ORDER BY LastModifiedDate DESC
             LIMIT 25
         ];
