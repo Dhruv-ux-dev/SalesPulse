@@ -1,0 +1,14 @@
+<template>
+    <lightning-card title="Account Enrichment" icon-name="standard:account">
+        <div class="action-content">
+            <p>Enrich this account using the configured CompanyData REST endpoint.</p>
+            <lightning-button variant="brand" label="Enrich Account" onclick={handleEnrich} disabled={isBusy}></lightning-button>
+            <template if:true={isBusy}>
+                <lightning-spinner alternative-text="Submitting enrichment" size="small"></lightning-spinner>
+            </template>
+            <template if:true={statusMessage}>
+                <p class={statusClass} role="status">{statusMessage}</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
