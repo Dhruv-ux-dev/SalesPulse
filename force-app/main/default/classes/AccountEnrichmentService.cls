@@ -29,6 +29,7 @@ public with sharing class AccountEnrichmentService implements Queueable, Databas
         List<Account> accounts = [
             SELECT Id, Website, Phone, Description, Enrichment_Status__c
             FROM Account WHERE Id IN :currentIds
+            WITH USER_MODE
         ];
         List<Account> updates = new List<Account>();
         for (Account accountRecord : accounts) {
@@ -63,7 +64,7 @@ public with sharing class AccountEnrichmentService implements Queueable, Databas
             }
             updates.add(changed);
         }
-        if (!updates.isEmpty()) update updates;
+        if (!updates.isEmpty()) update as user updates;
         if (!remainingIds.isEmpty()) System.enqueueJob(new AccountEnrichmentService(remainingIds));
     }
 
