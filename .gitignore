@@ -1,0 +1,26 @@
+# Salesforce CLI
+.sfdx/
+.sf/
+.localdevserver/
+
+# Node / LWC tooling
+node_modules/
+npm-debug.log*
+
+# Local auth and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+sfdx-auth-url.txt
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Test / coverage output
+coverage/
+.nyc_output/
