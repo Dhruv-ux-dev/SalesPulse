@@ -1,0 +1,26 @@
+name: Salesforce validation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+      - name: Authenticate to target org
+        env:
+          SF_AUTH_URL: ${{ secrets.SF_AUTH_URL }}
+        run: |
+          if [ -z "$SF_AUTH_URL" ]; then
+            echo "Repository secret SF_AUTH_URL is required to run deployment validation."
+            exit 1
+          fi
+          printf '%s' "$SF_AUTH_URL" | sf org login sfdx-url --sfdx-url-stdin --alias ci-org
+      - name: Validate deployment and run Apex tests
+        run: sf project deploy validate --manifest manifest/package.xml --target-org ci-org --test-level RunLocalTests --wait 60
