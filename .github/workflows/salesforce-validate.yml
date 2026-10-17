@@ -1,26 +1,78 @@
-name: Salesforce validation
+name: Salesforce CI
 
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  validate:
+  static-checks:
+    name: Static checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
-      - name: Install Salesforce CLI
-        run: npm install --global @salesforce/cli
-      - name: Authenticate to target org
+          python-version: '3.12'
+      - name: Check all metadata XML is well-formed
+        run: |
+          python - <<'EOF'
+          import pathlib, sys, xml.etree.ElementTree as ET
+          bad = 0
+          files = list(pathlib.Path('.').rglob('*.xml'))
+          for f in files:
+              try:
+                  ET.parse(f)
+              except ET.ParseError as e:
+                  print(f'::error file={f}::{e}')
+                  bad += 1
+          print(f'Checked {len(files)} XML files, {bad} invalid')
+          sys.exit(1 if bad else 0)
+          EOF
+      - name: Check every Apex class has a test class
+        run: |
+          missing=0
+          for f in force-app/main/default/classes/*.cls; do
+            name=$(basename "$f" .cls)
+            case "$name" in *Test) continue;; esac
+            if [ ! -f "force-app/main/default/classes/${name}Test.cls" ]; then
+              echo "::error file=$f::No ${name}Test.cls found"
+              missing=1
+            fi
+          done
+          exit $missing
+
+  org-validation:
+    name: Deploy validation + Apex tests
+    runs-on: ubuntu-latest
+    needs: static-checks
+    steps:
+      - name: Check for org credentials
+        id: auth
         env:
           SF_AUTH_URL: ${{ secrets.SF_AUTH_URL }}
         run: |
           if [ -z "$SF_AUTH_URL" ]; then
-            echo "Repository secret SF_AUTH_URL is required to run deployment validation."
-            exit 1
+            echo "::notice::SF_AUTH_URL secret not set; skipping org validation."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
           fi
-          printf '%s' "$SF_AUTH_URL" | sf org login sfdx-url --sfdx-url-stdin --alias ci-org
+      - uses: actions/checkout@v4
+        if: steps.auth.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.auth.outputs.enabled == 'true'
+        with:
+          node-version: '20'
+      - name: Install Salesforce CLI
+        if: steps.auth.outputs.enabled == 'true'
+        run: npm install --global @salesforce/cli
+      - name: Authenticate to target org
+        if: steps.auth.outputs.enabled == 'true'
+        env:
+          SF_AUTH_URL: ${{ secrets.SF_AUTH_URL }}
+        run: printf '%s' "$SF_AUTH_URL" | sf org login sfdx-url --sfdx-url-stdin --alias ci-org
       - name: Validate deployment and run Apex tests
+        if: steps.auth.outputs.enabled == 'true'
         run: sf project deploy validate --manifest manifest/package.xml --target-org ci-org --test-level RunLocalTests --wait 60
