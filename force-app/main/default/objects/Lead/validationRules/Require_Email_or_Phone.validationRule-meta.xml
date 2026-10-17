@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Email_or_Phone</fullName>
+    <active>true</active>
+    <description>Require at least one usable contact method for a lead.</description>
+    <errorConditionFormula>AND(ISBLANK(Email), ISBLANK(Phone))</errorConditionFormula>
+    <errorDisplayField>Email</errorDisplayField>
+    <errorMessage>Enter an email address or phone number for this lead.</errorMessage>
+</ValidationRule>
